@@ -150,6 +150,10 @@ interface ForecastCurrentResponse {
   apparent_temperature?: number | null;
   weather_code?: number | null;
   is_day?: number | null;
+  relative_humidity_2m?: number | null;
+  wind_speed_10m?: number | null;
+  precipitation?: number | null;
+  surface_pressure?: number | null;
 }
 
 interface ForecastDailyResponse {
@@ -268,6 +272,10 @@ function mapCurrent(current: ValidCurrentResponse): CurrentWeather {
     condition: getWeatherCodeInfo(current.weather_code).condition,
     measuredAt: current.time,
     isDay: isFiniteNumber(current.is_day) ? current.is_day === 1 : undefined,
+    humidity: finiteOrUndefined(current.relative_humidity_2m),
+    windSpeed: finiteOrUndefined(current.wind_speed_10m),
+    precipitation: finiteOrUndefined(current.precipitation),
+    pressure: finiteOrUndefined(current.surface_pressure),
   };
 }
 
@@ -291,7 +299,8 @@ export async function getWeather(city: City, signal?: AbortSignal): Promise<Weat
     timezone: 'auto',
     forecast_days: String(FORECAST_DAYS),
     temperature_unit: 'celsius',
-    current: 'temperature_2m,apparent_temperature,weather_code,is_day',
+    current:
+      'temperature_2m,apparent_temperature,weather_code,is_day,relative_humidity_2m,wind_speed_10m,precipitation,surface_pressure',
     daily: 'weather_code,temperature_2m_max,temperature_2m_min',
   });
 

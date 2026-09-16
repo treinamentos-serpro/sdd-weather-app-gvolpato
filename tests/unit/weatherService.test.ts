@@ -23,6 +23,10 @@ const current = {
   apparent_temperature: 25,
   weather_code: 2,
   is_day: 1,
+  relative_humidity_2m: 68,
+  wind_speed_10m: 14.4,
+  precipitation: 0.2,
+  surface_pressure: 1012.8,
 };
 
 const daily = {
@@ -171,6 +175,10 @@ describe('getWeather', () => {
       condition: 'Parcialmente nublado',
       measuredAt: '2026-09-16T14:00',
       isDay: true,
+      humidity: 68,
+      windSpeed: 14.4,
+      precipitation: 0.2,
+      pressure: 1012.8,
     });
     expect(weather.forecast).toHaveLength(5);
     expect(weather.forecast[1]).toMatchObject({
