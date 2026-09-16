@@ -317,18 +317,18 @@ export async function getWeather(city: City, signal?: AbortSignal): Promise<Weat
     throw new WeatherServiceError('Nao foi possivel carregar os dados.', 'invalid-response');
   }
 
-  const currentIsValid = data.current !== undefined && isValidCurrent(data.current);
-  const forecastIsValid = data.daily !== undefined && isValidDaily(data.daily);
+  const validCurrent = data.current && isValidCurrent(data.current) ? data.current : null;
+  const validForecast = data.daily && isValidDaily(data.daily) ? data.daily : null;
 
-  if (!currentIsValid && !forecastIsValid) {
+  if (!validCurrent && !validForecast) {
     throw new WeatherServiceError('Nao foi possivel carregar os dados.', 'invalid-response');
   }
 
   return {
     city: { ...city, timezone: data.timezone },
-    current: currentIsValid ? mapCurrent(data.current) : null,
-    forecast: forecastIsValid ? mapForecast(data.daily) : [],
-    currentStatus: currentIsValid ? 'success' : 'incomplete',
-    forecastStatus: forecastIsValid ? 'success' : 'incomplete',
+    current: validCurrent ? mapCurrent(validCurrent) : null,
+    forecast: validForecast ? mapForecast(validForecast) : [],
+    currentStatus: validCurrent ? 'success' : 'incomplete',
+    forecastStatus: validForecast ? 'success' : 'incomplete',
   };
 }
