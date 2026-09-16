@@ -1,47 +1,107 @@
-/**
- * Contratos de domínio compartilhados do Weather App.
- *
- * Decisão de arquitetura: as temperaturas são sempre armazenadas em Celsius
- * internamente e convertidas apenas na camada de apresentação. Assim, a troca
- * de unidade (C/F) nunca dispara um novo request.
- */
-
 export type Unit = 'celsius' | 'fahrenheit';
 
-/** Resultado da API de geocoding (uma cidade). */
+export type WeatherBlockStatus = 'idle' | 'loading' | 'success' | 'incomplete' | 'error';
+
 export interface City {
   id: number;
   name: string;
   country: string;
-  /** Estado/região, quando disponível (ajuda a desambiguar homônimos). */
   admin1?: string;
   latitude: number;
   longitude: number;
+  timezone: string;
 }
 
-/** Condições atuais. Temperatura sempre em °C. */
 export interface CurrentWeather {
-  temperature: number;
+  temperatureCelsius: number;
+  apparentTemperatureCelsius?: number;
   weatherCode: number;
-  humidity: number;
-  windSpeed: number;
-  pressure: number;
-  precipitation: number;
-  time: string;
+  condition: string;
+  measuredAt: string;
+  isDay?: boolean;
+  humidity?: number;
+  windSpeed?: number;
+  precipitation?: number;
+  pressure?: number;
 }
 
-/** Um dia da previsão. Temperaturas sempre em °C. */
 export interface ForecastDay {
   date: string;
-  min: number;
-  max: number;
   weatherCode: number;
-  precipitationProbability: number;
+  condition: string;
+  minCelsius: number;
+  maxCelsius: number;
+  precipitationProbability?: number;
 }
 
-/** Agregado entregue à UI: cidade + clima atual + 5 dias de previsão. */
 export interface WeatherData {
   city: City;
-  current: CurrentWeather;
+  current: CurrentWeather | null;
   forecast: ForecastDay[];
+  currentStatus: WeatherBlockStatus;
+  forecastStatus: WeatherBlockStatus;
 }
+
+export const mockWeatherData: WeatherData = {
+  city: {
+    id: 3451190,
+    name: 'Sao Paulo',
+    country: 'Brasil',
+    admin1: 'Sao Paulo',
+    latitude: -23.5505,
+    longitude: -46.6333,
+    timezone: 'America/Sao_Paulo',
+  },
+  current: {
+    temperatureCelsius: 24,
+    apparentTemperatureCelsius: 25.2,
+    weatherCode: 2,
+    condition: 'Parcialmente nublado',
+    measuredAt: '2026-09-16T14:00',
+    isDay: true,
+  },
+  forecast: [
+    {
+      date: '2026-09-16',
+      weatherCode: 2,
+      condition: 'Parcialmente nublado',
+      minCelsius: 17,
+      maxCelsius: 25,
+      precipitationProbability: 20,
+    },
+    {
+      date: '2026-09-17',
+      weatherCode: 61,
+      condition: 'Chuva',
+      minCelsius: 16,
+      maxCelsius: 22,
+      precipitationProbability: 90,
+    },
+    {
+      date: '2026-09-18',
+      weatherCode: 3,
+      condition: 'Nublado',
+      minCelsius: 15,
+      maxCelsius: 23,
+      precipitationProbability: 60,
+    },
+    {
+      date: '2026-09-19',
+      weatherCode: 0,
+      condition: 'Ceu limpo',
+      minCelsius: 14,
+      maxCelsius: 26,
+      precipitationProbability: 0,
+    },
+    {
+      date: '2026-09-20',
+      weatherCode: 80,
+      condition: 'Pancadas de chuva',
+      minCelsius: 18,
+      maxCelsius: 24,
+      precipitationProbability: 70,
+    },
+  ],
+  currentStatus: 'success',
+  forecastStatus: 'success',
+};

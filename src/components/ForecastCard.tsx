@@ -1,28 +1,39 @@
-import type { ForecastDay, Unit } from '../types/weather';
+import { memo } from 'react';
+import { formatDayLabel, getShortDate } from '../lib/format';
 import { formatTemperature } from '../lib/temperature';
-import { getWeatherIcon, getWeatherLabel } from '../lib/weatherCodes';
-import { getDayLabel, getShortDate } from '../lib/format';
+import { getWeatherCodeInfo } from '../lib/weatherCodes';
+import type { ForecastDay, Unit } from '../types/weather';
 
 interface ForecastCardProps {
   day: ForecastDay;
   index: number;
+  timezone: string;
   unit: Unit;
 }
 
-/** Card de um dia da previsão. */
-export default function ForecastCard({ day, index, unit }: ForecastCardProps) {
+function ForecastCard({ day, index, timezone, unit }: ForecastCardProps) {
+  const weatherInfo = getWeatherCodeInfo(day.weatherCode);
+  const dayLabel = formatDayLabel(index, day.date, timezone);
+  const maximum = Number.isFinite(day.maxCelsius) ? formatTemperature(day.maxCelsius, unit) : '—';
+  const minimum = Number.isFinite(day.minCelsius) ? formatTemperature(day.minCelsius, unit) : '—';
+  const precipitation = Number.isFinite(day.precipitationProbability)
+    ? `${day.precipitationProbability}%`
+    : '—';
+
   return (
-    <li className="flex flex-col items-center gap-2 rounded-xl border border-white/10 bg-white/5 p-4 text-center backdrop-blur-md">
-      <p className="font-semibold">{getDayLabel(day.date, index)}</p>
-      <p className="text-xs text-white/50">{getShortDate(day.date)}</p>
-      <span aria-hidden="true" className="text-3xl" title={getWeatherLabel(day.weatherCode)}>
-        {getWeatherIcon(day.weatherCode)}
-      </span>
-      <p className="text-sm">
-        <span className="font-semibold">{formatTemperature(day.max, unit)}</span>{' '}
-        <span className="text-white/50">{formatTemperature(day.min, unit)}</span>
+    <div className="flex flex-col items-center gap-2 rounded-xl border border-white/10 bg-white/5 p-4 text-center backdrop-blur-md">
+      <p className="text-sm font-medium uppercase tracking-wide text-white/60">
+        {dayLabel} · {getShortDate(day.date, timezone)}
       </p>
-      <p className="text-xs text-accent-400">💧 {day.precipitationProbability}%</p>
-    </li>
+      <span className="text-4xl" role="img" aria-label={weatherInfo.condition}>
+        {weatherInfo.icon}
+      </span>
+      <p className="text-sm font-semibold text-white">
+        {maximum} <span className="font-normal text-white/60">{minimum}</span>
+      </p>
+      <p className="text-xs text-white/60">💧 {precipitation}</p>
+    </div>
   );
 }
+
+export default memo(ForecastCard);
